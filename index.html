@@ -371,17 +371,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ⚠️ IMPORTANT: Replace these with your Supabase credentials
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE'; // e.g., https://xfgwcryzexxblwkhshc.supabase.co
-        const SUPABASE_KEY = 'YOUR_SUPABASE_KEY_HERE'; // Get from Settings > API
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_KEY_HERE';
 
         let supabase;
         let tasks = [];
 
-        // Initialize Supabase
         function initSupabase() {
             if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' || SUPABASE_KEY === 'YOUR_SUPABASE_KEY_HERE') {
-                showError('⚠️ Please add your Supabase credentials! Open browser console and check the instructions.');
+                showError('⚠️ Please add your Supabase credentials! Replace YOUR_SUPABASE_URL_HERE and YOUR_SUPABASE_KEY_HERE');
                 return false;
             }
 
@@ -390,7 +388,6 @@
             return true;
         }
 
-        // Load tasks from database
         async function loadTasks() {
             try {
                 const { data, error } = await supabase
@@ -406,7 +403,6 @@
             }
         }
 
-        // Add new task
         async function addTask() {
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDescription').value;
@@ -445,7 +441,6 @@
             }
         }
 
-        // Toggle task completion
         async function toggleTask(taskId, currentStatus) {
             try {
                 const { error } = await supabase
@@ -460,7 +455,6 @@
             }
         }
 
-        // Delete task
         async function deleteTask(taskId) {
             if (!confirm('Delete this task?')) return;
 
@@ -478,7 +472,6 @@
             }
         }
 
-        // Render tasks
         function renderTasks() {
             const taskList = document.getElementById('taskList');
             
@@ -523,7 +516,6 @@
             `).join('');
         }
 
-        // Utility functions
         function showError(message) {
             const errorEl = document.getElementById('error');
             errorEl.textContent = message;
@@ -549,14 +541,9 @@
             return text.replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Initialize when page loads
         window.addEventListener('load', () => {
             if (!initSupabase()) {
-                console.log('SETUP INSTRUCTIONS:');
-                console.log('1. Go to: ' + window.location.href);
-                console.log('2. Press Ctrl+Shift+J (or Cmd+Option+J on Mac) to open this console');
-                console.log('3. Replace YOUR_SUPABASE_URL_HERE with your Supabase URL');
-                console.log('4. Replace YOUR_SUPABASE_KEY_HERE with your Supabase API Key');
+                console.log('Please add Supabase credentials');
             }
         });
     </script>
