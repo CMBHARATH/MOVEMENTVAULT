@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOMENTVAULT - Your Personal Task Secretary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .tasks-section {
+            margin-top: 40px;
+            border-top: 2px solid #f0f0f0;
+            padding-top: 40px;
+        }
+
+        .tasks-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+            transform: translateX(5px);
+        }
+
+        .task-card.completed {
+            background: #f0f9ff;
+            border-left-color: #4ade80;
+            opacity: 0.7;
+        }
+
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85em;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-small:hover {
+            background: #764ba2;
+        }
+
+        .btn-small.delete {
+            background: #ef4444;
+        }
+
+        .btn-small.delete:hover {
+            background: #dc2626;
+        }
+
+        .btn-small.complete {
+            background: #4ade80;
+        }
+
+        .btn-small.complete:hover {
+            background: #22c55e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .task-card {
+                flex-direction: column;
+            }
+
+            .task-actions {
+                flex-direction: row;
+                align-items: center;
+                margin-top: 15px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .main-card {
+                padding: 25px;
+            }
+        }
+
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success {
+            background: #efe;
+            color: #080;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏛️ MOMENTVAULT</h1>
+            <p>Your Personal Task Secretary - Never Miss a Deadline Again</p>
+        </header>
+
+        <div class="main-card">
+            <div id="error" class="error"></div>
+            <div id="success" class="success"></div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-plus-circle"></i> Add New Task</h2>
+                
+                <div class="form-group">
+                    <label for="taskTitle">Task Title *</label>
+                    <input type="text" id="taskTitle" placeholder="e.g., Complete project report" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" placeholder="Add more details about your task..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskDate">Due Date *</label>
+                        <input type="date" id="taskDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskTime">Remind At *</label>
+                        <input type="time" id="taskTime" required>
+                    </div>
+                </div>
+
+                <button onclick="addTask()">
+                    <i class="fas fa-save"></i> Save Task to MOMENTVAULT
+                </button>
+            </div>
+
+            <div class="tasks-section">
+                <h2><i class="fas fa-tasks"></i> Your Tasks</h2>
+                <div id="taskList" class="task-list">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No tasks yet. Add one to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ⚠️ IMPORTANT: Replace these with your Supabase credentials
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE'; // e.g., https://xfgwcryzexxblwkhshc.supabase.co
+        const SUPABASE_KEY = 'YOUR_SUPABASE_KEY_HERE'; // Get from Settings > API
+
+        let supabase;
+        let tasks = [];
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE' || SUPABASE_KEY === 'YOUR_SUPABASE_KEY_HERE') {
+                showError('⚠️ Please add your Supabase credentials! Open browser console and check the instructions.');
+                return false;
+            }
+
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            loadTasks();
+            return true;
+        }
+
+        // Load tasks from database
+        async function loadTasks() {
+            try {
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .select('*')
+                    .order('scheduled_date', { ascending: true });
+
+                if (error) throw error;
+                tasks = data || [];
+                renderTasks();
+            } catch (error) {
+                showError('Error loading tasks: ' + error.message);
+            }
+        }
+
+        // Add new task
+        async function addTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const date = document.getElementById('taskDate').value;
+            const time = document.getElementById('taskTime').value;
+
+            if (!title || !date || !time) {
+                showError('Please fill in all required fields!');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('tasks')
+                    .insert([{
+                        title: title,
+                        description: description,
+                        scheduled_date: date,
+                        reminder_time: time,
+                        is_completed: false,
+                        user_id: 'user_' + Date.now()
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                showSuccess('✓ Task added successfully!');
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDescription').value = '';
+                document.getElementById('taskDate').value = '';
+                document.getElementById('taskTime').value = '';
+                
+                loadTasks();
+            } catch (error) {
+                showError('Error adding task: ' + error.message);
+            }
+        }
+
+        // Toggle task completion
+        async function toggleTask(taskId, currentStatus) {
+            try {
+                const { error } = await supabase
+                    .from('tasks')
+                    .update({ is_completed: !currentStatus })
+                    .eq('id', taskId);
+
+                if (error) throw error;
+                loadTasks();
+            } catch (error) {
+                showError('Error updating task: ' + error.message);
+            }
+        }
+
+        // Delete task
+        async function deleteTask(taskId) {
+            if (!confirm('Delete this task?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('tasks')
+                    .delete()
+                    .eq('id', taskId);
+
+                if (error) throw error;
+                showSuccess('✓ Task deleted!');
+                loadTasks();
+            } catch (error) {
+                showError('Error deleting task: ' + error.message);
+            }
+        }
+
+        // Render tasks
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No tasks yet. Add one to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            taskList.innerHTML = tasks.map(task => `
+                <div class="task-card ${task.is_completed ? 'completed' : ''}">
+                    <div class="task-content">
+                        <div class="task-title">${escapeHtml(task.title)}</div>
+                        ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+                        <div class="task-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                ${new Date(task.scheduled_date).toLocaleDateString('en-IN')}
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                ${task.reminder_time}
+                            </div>
+                            <span class="status-badge ${task.is_completed ? 'completed' : ''}">
+                                ${task.is_completed ? '✓ Completed' : '⏳ Pending'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-small ${task.is_completed ? 'complete' : 'complete'}" onclick="toggleTask(${task.id}, ${task.is_completed})">
+                            <i class="fas fa-check-circle"></i> ${task.is_completed ? 'Undo' : 'Complete'}
+                        </button>
+                        <button class="btn-small delete" onclick="deleteTask(${task.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Utility functions
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => errorEl.style.display = 'none', 5000);
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('success');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => successEl.style.display = 'none', 3000);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            if (!initSupabase()) {
+                console.log('SETUP INSTRUCTIONS:');
+                console.log('1. Go to: ' + window.location.href);
+                console.log('2. Press Ctrl+Shift+J (or Cmd+Option+J on Mac) to open this console');
+                console.log('3. Replace YOUR_SUPABASE_URL_HERE with your Supabase URL');
+                console.log('4. Replace YOUR_SUPABASE_KEY_HERE with your Supabase API Key');
+            }
+        });
+    </script>
+</body>
+</html>
