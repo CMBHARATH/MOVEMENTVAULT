@@ -8,263 +8,286 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
-        body { font-family: 'Segoe UI', 'Roboto', sans-serif; color: #fff; transition: background 1s ease; }
-        body.morning { background: linear-gradient(135deg, #FFB347 0%, #FFA500 100%); }
-        body.forenoon { background: linear-gradient(135deg, #87CEEB 0%, #1E90FF 100%); }
-        body.afternoon { background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%); }
-        body.evening { background: linear-gradient(135deg, #FF6B9D 0%, #664E88 100%); }
-        body.night { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); }
-        
-        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: hidden; }
-        .particle { position: absolute; width: 4px; height: 4px; background: rgba(255, 255, 255, 0.5); border-radius: 50%; animation: float 20s infinite; }
-        @keyframes float { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
-        
-        .container { width: 100%; height: 100%; display: flex; position: relative; z-index: 2; }
-        .clock-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
-        .clock-title { font-size: 28px; font-weight: 700; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        
-        .clock { width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), rgba(0,0,0,0.3)); border: 8px solid rgba(255,255,255,0.8); position: relative; box-shadow: 0 0 60px rgba(255,255,255,0.5); transform: rotateX(10deg) rotateY(-5deg); }
-        .clock-face { position: absolute; width: 100%; height: 100%; border-radius: 50%; }
-        .clock-center { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; background: rgba(255,255,255,0.9); border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; }
-        .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: rgba(255,255,255,0.9); border-radius: 10px; }
-        .hour-hand { width: 8px; height: 80px; margin-left: -4px; }
-        .minute-hand { width: 6px; height: 110px; margin-left: -3px; }
-        .second-hand { width: 3px; height: 120px; margin-left: -1.5px; background: #ff6b6b; }
-        
-        .time-display { font-size: 24px; font-weight: 700; margin-top: 30px; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: 2px; background: rgba(255,255,255,0.2); padding: 12px 24px; border-radius: 10px; backdrop-filter: blur(10px); }
-        .time-period { font-size: 14px; margin-top: 8px; opacity: 0.9; font-weight: 600; }
-        
-        .dashboard-section { flex: 1; display: flex; flex-direction: column; padding: 40px; overflow-y: auto; background: rgba(0,0,0,0.1); backdrop-filter: blur(10px); border-left: 1px solid rgba(255,255,255,0.2); }
-        .dashboard-title { font-size: 42px; font-weight: 800; margin-bottom: 8px; text-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .dashboard-subtitle { font-size: 16px; opacity: 0.9; font-weight: 300; letter-spacing: 1px; margin-bottom: 30px; }
-        
-        .focus-btn { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.6); color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .focus-btn.active { background: #FF6B6B; border-color: #FF6B6B; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 24px; backdrop-filter: blur(10px); transition: all 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.6); }
-        .stat-label { font-size: 13px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
-        .stat-value { font-size: 36px; font-weight: 700; }
-        
-        .add-task-section { margin-bottom: 30px; }
-        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .input-field { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 14px 18px; color: #fff; font-size: 15px; font-family: inherit; margin-bottom: 12px; width: 100%; }
-        .input-field:focus { outline: none; border-color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.12); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .submit-btn { background: rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.6); color: white; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; }
-        .submit-btn:hover { background: rgba(255,255,255,0.4); transform: translateY(-2px); }
-        
-        .tasks-list { display: flex; flex-direction: column; gap: 12px; max-height: 350px; overflow-y: auto; }
-        .task-item { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 16px; display: flex; gap: 12px; align-items: flex-start; transition: all 0.3s; }
-        .task-item:hover { border-color: rgba(255,255,255,0.6); transform: translateY(-2px); }
-        .task-item.completed { opacity: 0.6; }
-        .task-checkbox { width: 24px; height: 24px; border: 2px solid rgba(255,255,255,0.6); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); flex-shrink: 0; }
-        .task-item.completed .task-checkbox { background: rgba(76, 222, 128, 0.6); border-color: rgba(76, 222, 128, 1); color: white; }
-        .task-content { flex: 1; }
-        .task-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-        .task-item.completed .task-title { text-decoration: line-through; opacity: 0.5; }
-        .task-meta { display: flex; gap: 12px; font-size: 12px; opacity: 0.8; }
-        .task-delete { width: 28px; height: 28px; border: none; background: rgba(255,107,107,0.2); border-radius: 6px; color: #FF6B6B; cursor: pointer; flex-shrink: 0; font-size: 14px; }
-        
-        .empty-state { text-align: center; padding: 40px 20px; opacity: 0.7; }
-        .notification { position: fixed; bottom: 30px; right: 30px; background: rgba(76, 222, 128, 0.9); color: white; padding: 16px 24px; border-radius: 12px; font-weight: 600; z-index: 1000; }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
-        
-        @media (max-width: 1200px) {
-            .container { flex-direction: column; }
-            .dashboard-section { border-left: none; border-top: 1px solid rgba(255,255,255,0.2); }
-        }
+        body { font-family: 'Segoe UI', sans-serif; color: #fff; transition: background 1s ease; }
+        body.morning   { background: linear-gradient(135deg, #FFB347, #FFA500); }
+        body.forenoon  { background: linear-gradient(135deg, #87CEEB, #1E90FF); }
+        body.afternoon { background: linear-gradient(135deg, #FFD700, #FF8C00); }
+        body.evening   { background: linear-gradient(135deg, #FF6B9D, #664E88); }
+        body.night     { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+        .particles { position: fixed; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+        .particle { position:absolute; width:4px; height:4px; background:rgba(255,255,255,0.5); border-radius:50%; animation:float 25s infinite; }
+        @keyframes float { 0%{transform:translateY(100vh);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-100vh);opacity:0} }
+        .container { width:100%; height:100%; display:flex; position:relative; z-index:2; }
+        .clock-section { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; }
+        .clock-title { font-size:26px; font-weight:700; margin-bottom:25px; text-transform:uppercase; letter-spacing:3px; text-shadow:0 4px 15px rgba(0,0,0,0.3); }
+        .clock { width:260px; height:260px; border-radius:50%; background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.15),rgba(0,0,0,0.3)); border:8px solid rgba(255,255,255,0.8); position:relative; box-shadow:0 0 60px rgba(255,255,255,0.4); transform:rotateX(10deg) rotateY(-5deg); }
+        .clock-face { position:absolute; width:100%; height:100%; border-radius:50%; }
+        .clock-center { position:absolute; top:50%; left:50%; width:14px; height:14px; background:#fff; border-radius:50%; transform:translate(-50%,-50%); z-index:10; }
+        .hand { position:absolute; bottom:50%; left:50%; transform-origin:bottom center; background:rgba(255,255,255,0.95); border-radius:10px; }
+        .hour-hand   { width:8px;  height:75px;  margin-left:-4px; }
+        .minute-hand { width:5px;  height:105px; margin-left:-2.5px; }
+        .second-hand { width:2px;  height:115px; margin-left:-1px; background:#ff6b6b; }
+        .time-display { font-size:22px; font-weight:700; margin-top:25px; letter-spacing:2px; background:rgba(255,255,255,0.2); padding:10px 22px; border-radius:10px; text-align:center; }
+        .time-period { font-size:13px; margin-top:6px; font-weight:600; }
+        .notif-btn { margin-top:14px; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.5); color:#fff; padding:8px 18px; border-radius:20px; cursor:pointer; font-size:13px; font-weight:600; }
+        .notif-btn.on { background:rgba(76,222,128,0.4); border-color:rgba(76,222,128,0.8); }
+        .dashboard { flex:1; display:flex; flex-direction:column; padding:36px; overflow-y:auto; background:rgba(0,0,0,0.12); backdrop-filter:blur(10px); border-left:1px solid rgba(255,255,255,0.2); }
+        .dash-title { font-size:38px; font-weight:800; margin-bottom:6px; }
+        .dash-sub { font-size:15px; opacity:0.85; margin-bottom:28px; }
+        .top-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }
+        .focus-btn { background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.6); color:#fff; padding:9px 18px; border-radius:20px; cursor:pointer; font-weight:600; font-size:13px; white-space:nowrap; }
+        .focus-btn.active { background:#FF6B6B; border-color:#FF6B6B; }
+        .stats { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:26px; }
+        .stat { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); border-radius:16px; padding:20px; }
+        .stat-label { font-size:12px; opacity:0.6; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+        .stat-val { font-size:32px; font-weight:700; }
+        .sec-title { font-size:16px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+        .input-field { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); border-radius:10px; padding:12px 16px; color:#fff; font-size:14px; font-family:inherit; width:100%; margin-bottom:10px; }
+        .input-field::placeholder { color:rgba(255,255,255,0.5); }
+        .input-field:focus { outline:none; border-color:rgba(255,255,255,0.8); background:rgba(255,255,255,0.15); }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+        .save-btn { background:rgba(255,255,255,0.25); border:2px solid rgba(255,255,255,0.6); color:#fff; padding:12px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; width:100%; transition:all 0.2s; }
+        .save-btn:hover { background:rgba(255,255,255,0.35); transform:translateY(-1px); }
+        .tasks-list { display:flex; flex-direction:column; gap:10px; max-height:300px; overflow-y:auto; margin-top:4px; }
+        .task-item { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); border-radius:10px; padding:14px; display:flex; gap:10px; align-items:flex-start; transition:all 0.2s; }
+        .task-item:hover { border-color:rgba(255,255,255,0.5); transform:translateY(-1px); }
+        .task-item.done { opacity:0.55; }
+        .chk { width:22px; height:22px; border:2px solid rgba(255,255,255,0.6); border-radius:5px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:13px; background:rgba(255,255,255,0.1); margin-top:1px; }
+        .task-item.done .chk { background:rgba(76,222,128,0.6); border-color:#4ade80; }
+        .task-body { flex:1; }
+        .task-name { font-size:14px; font-weight:600; margin-bottom:4px; }
+        .task-item.done .task-name { text-decoration:line-through; opacity:0.6; }
+        .task-info { font-size:11px; opacity:0.75; display:flex; gap:10px; }
+        .del-btn { width:26px; height:26px; border:none; background:rgba(255,100,100,0.2); border-radius:5px; color:#ff6b6b; cursor:pointer; font-size:13px; flex-shrink:0; }
+        .del-btn:hover { background:rgba(255,100,100,0.35); }
+        .empty { text-align:center; padding:30px; opacity:0.6; font-size:14px; }
+        .toast { position:fixed; bottom:24px; right:24px; padding:14px 22px; border-radius:10px; font-weight:600; font-size:14px; z-index:9999; box-shadow:0 8px 24px rgba(0,0,0,0.3); animation:fadeIn 0.3s ease; }
+        .toast.ok  { background:rgba(76,222,128,0.95); color:#fff; }
+        .toast.err { background:rgba(255,100,100,0.95); color:#fff; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.3); border-radius:3px; }
+        @media(max-width:860px){ .container{flex-direction:column;overflow-y:auto;height:auto} html,body{overflow:auto} .dashboard{border-left:none;border-top:1px solid rgba(255,255,255,0.2)} }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    <div class="container">
-        <div class="clock-section">
-            <div class="clock-title">⏰ MOMENTVAULT</div>
-            <div class="clock">
-                <div class="clock-face">
-                    <div class="hand hour-hand" id="hourHand"></div>
-                    <div class="hand minute-hand" id="minuteHand"></div>
-                    <div class="hand second-hand" id="secondHand"></div>
-                    <div class="clock-center"></div>
-                </div>
-            </div>
-            <div class="time-display">
-                <span id="timeDisplay">00:00:00</span>
-                <div class="time-period" id="timePeriod">MORNING</div>
+<div class="particles" id="particles"></div>
+<div class="container">
+    <div class="clock-section">
+        <div class="clock-title">⏰ MOMENTVAULT</div>
+        <div class="clock">
+            <div class="clock-face">
+                <div class="hand hour-hand"   id="hH"></div>
+                <div class="hand minute-hand" id="mH"></div>
+                <div class="hand second-hand" id="sH"></div>
+                <div class="clock-center"></div>
             </div>
         </div>
-
-        <div class="dashboard-section">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
-                <div>
-                    <div class="dashboard-title">Your Personal<br>Task Secretary</div>
-                    <div class="dashboard-subtitle">Never miss a deadline again</div>
-                </div>
-                <button class="focus-btn" id="focusBtn" style="margin-top: 5px;">
-                    <i class="fas fa-eye-slash"></i> Focus
-                </button>
+        <div class="time-display">
+            <div id="timeDisp">00:00:00</div>
+            <div class="time-period" id="timePeriod">MORNING</div>
+        </div>
+        <button class="notif-btn" id="notifBtn" onclick="askNotif()">🔔 Enable Reminders</button>
+    </div>
+    <div class="dashboard">
+        <div class="top-row">
+            <div>
+                <div class="dash-title">Your Personal<br>Task Secretary</div>
+                <div class="dash-sub">Never miss a deadline again</div>
             </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">📋 Total</div>
-                    <div class="stat-value" id="totalTasks">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">✓ Done</div>
-                    <div class="stat-value" id="completedTasks">0</div>
-                </div>
+            <button class="focus-btn" id="focusBtn">👁 Focus</button>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">📋 Total Tasks</div>
+                <div class="stat-val" id="totalVal">0</div>
             </div>
-
-            <div class="add-task-section">
-                <div class="section-title"><i class="fas fa-plus-circle"></i> Add Task</div>
-                <input type="text" class="input-field" id="taskInput" placeholder="What needs to be done?">
-                <div class="form-row">
-                    <input type="date" class="input-field" id="taskDate">
-                    <input type="time" class="input-field" id="taskTime">
-                </div>
-                <button class="submit-btn" id="addBtn"><i class="fas fa-plus"></i> Save</button>
+            <div class="stat">
+                <div class="stat-label">✓ Completed</div>
+                <div class="stat-val" id="doneVal">0</div>
             </div>
-
-            <div class="section-title"><i class="fas fa-tasks"></i> Tasks</div>
-            <div class="tasks-list" id="tasksList">
-                <div class="empty-state"><div style="font-size: 48px;">📝</div>No tasks yet!</div>
-            </div>
+        </div>
+        <div class="sec-title"><i class="fas fa-plus-circle"></i> Add Task</div>
+        <input type="text" class="input-field" id="titleInp" placeholder="What needs to be done?">
+        <div class="form-row">
+            <input type="date" class="input-field" id="dateInp">
+            <input type="time" class="input-field" id="timeInp">
+        </div>
+        <button class="save-btn" id="saveBtn">+ Save Task</button>
+        <div class="sec-title" style="margin-top:22px"><i class="fas fa-tasks"></i> Your Tasks</div>
+        <div class="tasks-list" id="taskList">
+            <div class="empty">📝 No tasks yet! Add one above.</div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const db = window.supabase.createClient('https://bcjbsbpricgzhzhuqqig.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjamJzYnByaWNnemh6aHVxcWlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTk5ODYwNzUsImV4cCI6MjAzNTU2MjA3NX0.sb_pub1$hable_DN8cAQ7hIAEui9hI28PIA_mDojCeIX');
-        let tasks = [];
-        let focusMode = false;
-
-        document.getElementById('taskDate').valueAsDate = new Date();
-        const now = new Date();
-        document.getElementById('taskTime').value = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-
-        document.getElementById('addBtn').addEventListener('click', addTask);
-        document.getElementById('taskInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
-        document.getElementById('focusBtn').addEventListener('click', () => {
-            focusMode = !focusMode;
-            document.getElementById('focusBtn').classList.toggle('active');
-            showMsg(focusMode ? '🎯 Focus ON' : '🔔 Focus OFF');
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+    const SB = window.supabase.createClient(
+        'https://bcjbsbpricgzhzhuqqig.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjamJzYnByaWNnemh6aHVxcWlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxOTMyOTYsImV4cCI6MjA5Nzc2OTI5Nn0.XMtnsES1GnTbvDJTtt-aaDuQAZGdeeHAMzbCc97qvT4'
+    );
+    let tasks=[], focusMode=false, notified=new Set();
+    const now=new Date();
+    document.getElementById('dateInp').valueAsDate=now;
+    document.getElementById('timeInp').value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    const pc=document.getElementById('particles');
+    for(let i=0;i<28;i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        p.style.left=Math.random()*100+'%';
+        p.style.animationDuration=(Math.random()*15+15)+'s';
+        p.style.animationDelay=(Math.random()*8)+'s';
+        pc.appendChild(p);
+    }
+    function tickClock(){
+        const t=new Date(),h=t.getHours(),m=t.getMinutes(),s=t.getSeconds();
+        document.getElementById('hH').style.transform=`rotate(${((h%12+m/60)/12)*360}deg)`;
+        document.getElementById('mH').style.transform=`rotate(${((m+s/60)/60)*360}deg)`;
+        document.getElementById('sH').style.transform=`rotate(${(s/60)*360}deg)`;
+        document.getElementById('timeDisp').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    }
+    function setTheme(){
+        const h=new Date().getHours();
+        const map=[[5,12,'morning','🌅 MORNING'],[12,15,'forenoon','☀️ FORENOON'],[15,18,'afternoon','🌤️ AFTERNOON'],[18,21,'evening','🌅 EVENING']];
+        let theme='night',label='🌙 NIGHT';
+        for(const [a,b,t,l] of map){if(h>=a&&h<b){theme=t;label=l;break;}}
+        document.body.className=theme;
+        document.getElementById('timePeriod').textContent=label;
+    }
+    function askNotif(){
+        if(!('Notification' in window)){toast('Not supported','err');return;}
+        Notification.requestPermission().then(p=>{
+            if(p==='granted'){
+                document.getElementById('notifBtn').textContent='✅ Reminders ON';
+                document.getElementById('notifBtn').classList.add('on');
+                toast('✅ Reminders enabled!');
+                new Notification('MOMENTVAULT',{body:'Task reminders are active!'});
+            }else{toast('Allow notifications in browser settings','err');}
         });
-
-        function createParticles() {
-            for (let i = 0; i < 30; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.left = Math.random() * 100 + '%';
-                p.style.animationDuration = (Math.random() * 20 + 20) + 's';
-                p.style.animationDelay = Math.random() * 5 + 's';
-                document.getElementById('particles').appendChild(p);
+    }
+    function fireNotif(title,time){
+        if(focusMode)return;
+        if(Notification.permission==='granted'){
+            new Notification('⏰ TASK REMINDER',{body:'📋 '+title+'\n🕐 '+time,requireInteraction:true});
+        }
+        try{
+            const ctx=new(window.AudioContext||window.webkitAudioContext)();
+            const o=ctx.createOscillator(),g=ctx.createGain();
+            o.connect(g);g.connect(ctx.destination);
+            o.frequency.setValueAtTime(880,ctx.currentTime);
+            g.gain.setValueAtTime(0.3,ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.6);
+            o.start();o.stop(ctx.currentTime+0.6);
+        }catch(e){}
+        toast('⏰ REMINDER: '+title);
+    }
+    function checkReminders(){
+        if(focusMode)return;
+        const n=new Date();
+        const today=n.toISOString().split('T')[0];
+        const hhmm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+        tasks.forEach(t=>{
+            if(t.is_completed)return;
+            const key=t.id+'_'+t.scheduled_date+'_'+t.reminder_time;
+            if(notified.has(key))return;
+            if(t.scheduled_date===today&&t.reminder_time.substring(0,5)===hhmm){
+                notified.add(key);
+                fireNotif(t.title,t.reminder_time.substring(0,5));
             }
-        }
-
-        function updateTheme() {
-            const h = new Date().getHours();
-            let theme, period;
-            if (h >= 5 && h < 12) { theme = 'morning'; period = '🌅 MORNING'; }
-            else if (h >= 12 && h < 15) { theme = 'forenoon'; period = '☀️ FORENOON'; }
-            else if (h >= 15 && h < 18) { theme = 'afternoon'; period = '🌤️ AFTERNOON'; }
-            else if (h >= 18 && h < 21) { theme = 'evening'; period = '🌅 EVENING'; }
-            else { theme = 'night'; period = '🌙 NIGHT'; }
-            document.body.className = theme;
-            document.getElementById('timePeriod').textContent = period;
-        }
-
-        function updateClock() {
-            const now = new Date();
-            const h = now.getHours();
-            const m = now.getMinutes();
-            const s = now.getSeconds();
-            document.getElementById('hourHand').style.transform = `rotate(${((h % 12 + m / 60) / 12) * 360}deg)`;
-            document.getElementById('minuteHand').style.transform = `rotate(${((m + s / 60) / 60) * 360}deg)`;
-            document.getElementById('secondHand').style.transform = `rotate(${(s / 60) * 360}deg)`;
-            document.getElementById('timeDisplay').textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-        }
-
-        async function loadTasks() {
-            try {
-                const { data } = await db.from('tasks').select('*').order('scheduled_date');
-                tasks = data || [];
-                renderTasks();
-                updateStats();
-            } catch (e) { }
-        }
-
-        async function addTask() {
-            const title = document.getElementById('taskInput').value.trim();
-            const date = document.getElementById('taskDate').value;
-            const time = document.getElementById('taskTime').value;
-            if (!title || !date || !time) return alert('Fill all fields!');
-            try {
-                await db.from('tasks').insert([{ title, scheduled_date: date, reminder_time: time, is_completed: false, user_id: 'user_' + Date.now() }]);
-                showMsg('✅ Task Added!');
-                document.getElementById('taskInput').value = '';
-                loadTasks();
-            } catch (e) { alert('Error: ' + e.message); }
-        }
-
-        async function toggleTask(id, completed) {
-            try {
-                await db.from('tasks').update({ is_completed: !completed }).eq('id', id);
-                loadTasks();
-                showMsg(!completed ? '✓ Done!' : 'Undone');
-            } catch (e) { }
-        }
-
-        async function deleteTask(id) {
-            if (!confirm('Delete?')) return;
-            try {
-                await db.from('tasks').delete().eq('id', id);
-                showMsg('🗑️ Deleted');
-                loadTasks();
-            } catch (e) { }
-        }
-
-        function renderTasks() {
-            const list = document.getElementById('tasksList');
-            if (!tasks.length) {
-                list.innerHTML = '<div class="empty-state"><div style="font-size: 48px;">📝</div>No tasks yet!</div>';
-                return;
-            }
-            list.innerHTML = tasks.map(t => `
-                <div class="task-item ${t.is_completed ? 'completed' : ''}">
-                    <div class="task-checkbox" onclick="toggleTask(${t.id}, ${t.is_completed})">${t.is_completed ? '✓' : ''}</div>
-                    <div class="task-content">
-                        <div class="task-title">${t.title}</div>
-                        <div class="task-meta"><span>📅 ${new Date(t.scheduled_date).toLocaleDateString()}</span> <span>🕐 ${t.reminder_time}</span></div>
+        });
+    }
+    async function loadTasks(){
+        try{
+            const {data,error}=await SB.from('tasks').select('*').order('scheduled_date',{ascending:true});
+            if(error)throw error;
+            tasks=data||[];
+            render();
+            updateStats();
+        }catch(e){console.error('Load:',e.message);}
+    }
+    async function addTask(){
+        const title=document.getElementById('titleInp').value.trim();
+        const date=document.getElementById('dateInp').value;
+        const time=document.getElementById('timeInp').value;
+        if(!title){toast('Enter a task title!','err');return;}
+        if(!date){toast('Pick a date!','err');return;}
+        if(!time){toast('Pick a time!','err');return;}
+        try{
+            const {error}=await SB.from('tasks').insert([{title,scheduled_date:date,reminder_time:time,is_completed:false,user_id:'mv_user'}]);
+            if(error)throw error;
+            document.getElementById('titleInp').value='';
+            toast('✅ Task saved! Reminder set for '+time);
+            setTimeout(loadTasks,400);
+        }catch(e){toast('Error: '+e.message,'err');}
+    }
+    async function toggleTask(id,done){
+        try{
+            const {error}=await SB.from('tasks').update({is_completed:!done}).eq('id',id);
+            if(error)throw error;
+            toast(!done?'✅ Task done!':'↩️ Reopened');
+            loadTasks();
+        }catch(e){console.error(e.message);}
+    }
+    async function delTask(id){
+        if(!confirm('Delete this task?'))return;
+        try{
+            const {error}=await SB.from('tasks').delete().eq('id',id);
+            if(error)throw error;
+            toast('🗑️ Deleted');
+            loadTasks();
+        }catch(e){console.error(e.message);}
+    }
+    function render(){
+        const list=document.getElementById('taskList');
+        if(!tasks.length){list.innerHTML='<div class="empty">📝 No tasks yet! Add one above.</div>';return;}
+        list.innerHTML=tasks.map(t=>`
+            <div class="task-item ${t.is_completed?'done':''}">
+                <div class="chk" onclick="window._mv.toggle(${t.id},${t.is_completed})">${t.is_completed?'✓':''}</div>
+                <div class="task-body">
+                    <div class="task-name">${safe(t.title)}</div>
+                    <div class="task-info">
+                        <span>📅 ${fmt(t.scheduled_date)}</span>
+                        <span>🕐 ${t.reminder_time.substring(0,5)}</span>
                     </div>
-                    <button class="task-delete" onclick="deleteTask(${t.id})">🗑️</button>
                 </div>
-            `).join('');
-        }
-
-        function updateStats() {
-            document.getElementById('totalTasks').textContent = tasks.length;
-            document.getElementById('completedTasks').textContent = tasks.filter(t => t.is_completed).length;
-        }
-
-        function showMsg(msg) {
-            const el = document.createElement('div');
-            el.className = 'notification';
-            el.textContent = msg;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 3000);
-        }
-
-        createParticles();
-        updateClock();
-        updateTheme();
-        setInterval(updateClock, 1000);
-        setInterval(updateTheme, 60000);
-        loadTasks();
-    </script>
+                <button class="del-btn" onclick="window._mv.del(${t.id})">🗑️</button>
+            </div>
+        `).join('');
+    }
+    function updateStats(){
+        document.getElementById('totalVal').textContent=tasks.length;
+        document.getElementById('doneVal').textContent=tasks.filter(t=>t.is_completed).length;
+    }
+    function toast(msg,type='ok'){
+        const el=document.createElement('div');
+        el.className='toast '+type;
+        el.textContent=msg;
+        document.body.appendChild(el);
+        setTimeout(()=>el.remove(),4000);
+    }
+    function safe(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function fmt(d){return new Date(d+'T00:00:00').toLocaleDateString();}
+    document.getElementById('saveBtn').addEventListener('click',addTask);
+    document.getElementById('titleInp').addEventListener('keypress',e=>{if(e.key==='Enter')addTask();});
+    document.getElementById('focusBtn').addEventListener('click',()=>{
+        focusMode=!focusMode;
+        document.getElementById('focusBtn').classList.toggle('active');
+        document.getElementById('focusBtn').textContent=focusMode?'🎯 Focus ON':'👁 Focus';
+        toast(focusMode?'🎯 Focus ON - reminders paused':'🔔 Reminders active');
+    });
+    window._mv={toggle:toggleTask,del:delTask};
+    window.askNotif=askNotif;
+    if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
+        document.getElementById('notifBtn').textContent='✅ Reminders ON';
+        document.getElementById('notifBtn').classList.add('on');
+    }
+    tickClock();setTheme();loadTasks();
+    setInterval(tickClock,1000);
+    setInterval(setTheme,60000);
+    setInterval(checkReminders,30000);
+    setInterval(loadTasks,60000);
+})();
+</script>
 </body>
 </html>
