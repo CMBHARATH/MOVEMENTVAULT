@@ -31,6 +31,7 @@
         .time-period { font-size:13px; margin-top:6px; font-weight:600; }
         .notif-btn { margin-top:14px; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.5); color:#fff; padding:8px 18px; border-radius:20px; cursor:pointer; font-size:13px; font-weight:600; }
         .notif-btn.on { background:rgba(76,222,128,0.4); border-color:rgba(76,222,128,0.8); }
+        .test-btn { margin-top:8px; background:rgba(255,200,0,0.3); border:1px solid rgba(255,200,0,0.6); color:#fff; padding:6px 14px; border-radius:20px; cursor:pointer; font-size:12px; font-weight:600; }
         .dashboard { flex:1; display:flex; flex-direction:column; padding:36px; overflow-y:auto; background:rgba(0,0,0,0.12); backdrop-filter:blur(10px); border-left:1px solid rgba(255,255,255,0.2); }
         .dash-title { font-size:38px; font-weight:800; margin-bottom:6px; }
         .dash-sub { font-size:15px; opacity:0.85; margin-bottom:28px; }
@@ -64,6 +65,7 @@
         .toast { position:fixed; bottom:24px; right:24px; padding:14px 22px; border-radius:10px; font-weight:600; font-size:14px; z-index:9999; box-shadow:0 8px 24px rgba(0,0,0,0.3); animation:fadeIn 0.3s ease; }
         .toast.ok  { background:rgba(76,222,128,0.95); color:#fff; }
         .toast.err { background:rgba(255,100,100,0.95); color:#fff; }
+        .toast.warn { background:rgba(255,165,0,0.95); color:#fff; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         ::-webkit-scrollbar { width:5px; }
         ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.3); border-radius:3px; }
@@ -88,6 +90,7 @@
             <div class="time-period" id="timePeriod">MORNING</div>
         </div>
         <button class="notif-btn" id="notifBtn" onclick="askNotif()">🔔 Enable Reminders</button>
+        <button class="test-btn" onclick="testNotif()">🧪 Test Notification Now</button>
     </div>
     <div class="dashboard">
         <div class="top-row">
@@ -156,41 +159,68 @@
         document.getElementById('timePeriod').textContent=label;
     }
     function askNotif(){
-        if(!('Notification' in window)){toast('Not supported','err');return;}
+        if(!('Notification' in window)){toast('Browser does not support notifications','err');return;}
+        if(Notification.permission==='granted'){toast('✅ Reminders already ON!');updateNotifBtn();return;}
         Notification.requestPermission().then(p=>{
             if(p==='granted'){
-                document.getElementById('notifBtn').textContent='✅ Reminders ON';
-                document.getElementById('notifBtn').classList.add('on');
+                updateNotifBtn();
                 toast('✅ Reminders enabled!');
-                new Notification('MOMENTVAULT',{body:'Task reminders are active!'});
-            }else{toast('Allow notifications in browser settings','err');}
+                new Notification('✅ MOMENTVAULT',{body:'Task reminders are now active! You will be notified at task time.'});
+            }else{
+                toast('❌ Please allow notifications in browser settings','err');
+            }
         });
     }
-    function fireNotif(title,time){
-        if(focusMode)return;
+    function updateNotifBtn(){
         if(Notification.permission==='granted'){
-            new Notification('⏰ TASK REMINDER',{body:'📋 '+title+'\n🕐 '+time,requireInteraction:true});
+            document.getElementById('notifBtn').textContent='✅ Reminders ON';
+            document.getElementById('notifBtn').classList.add('on');
         }
-        try{
-            const ctx=new(window.AudioContext||window.webkitAudioContext)();
-            const o=ctx.createOscillator(),g=ctx.createGain();
-            o.connect(g);g.connect(ctx.destination);
-            o.frequency.setValueAtTime(880,ctx.currentTime);
-            g.gain.setValueAtTime(0.3,ctx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.6);
-            o.start();o.stop(ctx.currentTime+0.6);
-        }catch(e){}
+    }
+    function testNotif(){
+        if(Notification.permission!=='granted'){toast('⚠️ Enable reminders first!','warn');return;}
+        playBeep();
+        new Notification('⏰ MOMENTVAULT TEST',{
+            body:'🎉 Notifications are working! You will get alerts like this at task time.',
+            requireInteraction:true
+        });
+        toast('🧪 Test notification sent! Check your screen/phone.');
+    }
+    function fireNotif(title,time){
+        if(focusMode){toast('🎯 Focus ON - reminder skipped: '+title,'warn');return;}
+        if(Notification.permission==='granted'){
+            new Notification('⏰ TASK REMINDER',{
+                body:'📋 '+title+'\n🕐 Time: '+time,
+                requireInteraction:true,
+                tag:'mv-'+title
+            });
+        }
+        playBeep();
         toast('⏰ REMINDER: '+title);
     }
+    function playBeep(){
+        try{
+            const ctx=new(window.AudioContext||window.webkitAudioContext)();
+            [880,660,880].forEach((freq,i)=>{
+                const o=ctx.createOscillator(),g=ctx.createGain();
+                o.connect(g);g.connect(ctx.destination);
+                o.frequency.value=freq;
+                g.gain.setValueAtTime(0.3,ctx.currentTime+i*0.15);
+                g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.15+0.14);
+                o.start(ctx.currentTime+i*0.15);
+                o.stop(ctx.currentTime+i*0.15+0.14);
+            });
+        }catch(e){}
+    }
     function checkReminders(){
-        if(focusMode)return;
+        if(focusMode||Notification.permission!=='granted') return;
         const n=new Date();
-        const today=n.toISOString().split('T')[0];
+        const today=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
         const hhmm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
         tasks.forEach(t=>{
-            if(t.is_completed)return;
-            const key=t.id+'_'+t.scheduled_date+'_'+t.reminder_time;
-            if(notified.has(key))return;
+            if(t.is_completed) return;
+            const key=t.id+'_'+t.scheduled_date+'_'+t.reminder_time.substring(0,5);
+            if(notified.has(key)) return;
             if(t.scheduled_date===today&&t.reminder_time.substring(0,5)===hhmm){
                 notified.add(key);
                 fireNotif(t.title,t.reminder_time.substring(0,5));
@@ -200,7 +230,7 @@
     async function loadTasks(){
         try{
             const {data,error}=await SB.from('tasks').select('*').order('scheduled_date',{ascending:true});
-            if(error)throw error;
+            if(error) throw error;
             tasks=data||[];
             render();
             updateStats();
@@ -215,7 +245,7 @@
         if(!time){toast('Pick a time!','err');return;}
         try{
             const {error}=await SB.from('tasks').insert([{title,scheduled_date:date,reminder_time:time,is_completed:false,user_id:'mv_user'}]);
-            if(error)throw error;
+            if(error) throw error;
             document.getElementById('titleInp').value='';
             toast('✅ Task saved! Reminder set for '+time);
             setTimeout(loadTasks,400);
@@ -224,16 +254,16 @@
     async function toggleTask(id,done){
         try{
             const {error}=await SB.from('tasks').update({is_completed:!done}).eq('id',id);
-            if(error)throw error;
+            if(error) throw error;
             toast(!done?'✅ Task done!':'↩️ Reopened');
             loadTasks();
         }catch(e){console.error(e.message);}
     }
     async function delTask(id){
-        if(!confirm('Delete this task?'))return;
+        if(!confirm('Delete this task?')) return;
         try{
             const {error}=await SB.from('tasks').delete().eq('id',id);
-            if(error)throw error;
+            if(error) throw error;
             toast('🗑️ Deleted');
             loadTasks();
         }catch(e){console.error(e.message);}
@@ -278,14 +308,12 @@
     });
     window._mv={toggle:toggleTask,del:delTask};
     window.askNotif=askNotif;
-    if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
-        document.getElementById('notifBtn').textContent='✅ Reminders ON';
-        document.getElementById('notifBtn').classList.add('on');
-    }
+    window.testNotif=testNotif;
+    updateNotifBtn();
     tickClock();setTheme();loadTasks();
     setInterval(tickClock,1000);
     setInterval(setTheme,60000);
-    setInterval(checkReminders,30000);
+    setInterval(checkReminders,10000);
     setInterval(loadTasks,60000);
 })();
 </script>
